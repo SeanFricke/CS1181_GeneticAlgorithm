@@ -21,4 +21,12 @@ public class GeneticAlgorithm {
         }
         return items;
     }
+
+    public static ArrayList<Chromosome> initializePopulation(ArrayList<Item> items, int populationSize) {
+        ArrayList<Chromosome> population = new ArrayList<>();
+        for (int i = 0; i < populationSize; i++) {
+            population.add(new Chromosome(items));
+        }
+        return population;
+    }
 }
