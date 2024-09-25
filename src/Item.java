@@ -34,8 +34,8 @@ public class Item {
         return this.included;
     }
 
-    public String getName() {
-        return this.name + "(" + this.weight + "lbs, $" + this.value + ")";
+    public String toString() {
+        return this.name + " (" + this.weight + "lbs, $" + this.value + ")";
     }
 
 }

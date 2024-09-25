@@ -8,7 +8,7 @@ public class Chromosome extends ArrayList<Item> implements Comparable<Chromosome
 
     public Chromosome(ArrayList<Item> items) {
         for (Item item : items) {
-            Item itemCopy = new Item(item.getName(), item.getWeight(), item.getValue());
+            Item itemCopy = new Item(item.toString(), item.getWeight(), item.getValue());
             itemCopy.setIncluded(rng.nextBoolean());
             add(itemCopy);
         }
@@ -24,10 +24,10 @@ public class Chromosome extends ArrayList<Item> implements Comparable<Chromosome
           boolean traitParent = rng.nextBoolean();
           Item trait;
           if (traitParent) {
-              trait = new Item(this.get(i).getName(), this.get(i).getWeight(), this.get(i).getValue());
+              trait = new Item(this.get(i).toString(), this.get(i).getWeight(), this.get(i).getValue());
           }
           else {
-              trait = new Item(other.get(i).getName(), other.get(i).getWeight(), other.get(i).getValue());
+              trait = new Item(other.get(i).toString(), other.get(i).getWeight(), other.get(i).getValue());
           }
           child.add(trait);
         }
