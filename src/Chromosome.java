@@ -18,12 +18,11 @@ public class Chromosome extends ArrayList<Item> implements Comparable<Chromosome
      * @param items Structure template for the new CHROMOSOME.
      */
     public Chromosome(ArrayList<Item> items) {
-        for (Item item : items) {
+        for (Item gene : items) {
             // Copy values that are in constructor
-            Item itemCopy = new Item(item.getName(), item.getWeight(), item.getValue());
-
-            itemCopy.setIncluded(rng.nextBoolean()); // Copy Included state
-            add(itemCopy); // Add ITEM copy to CHROMOSOME
+            Item geneCopy = new Item(gene.getName(), gene.getWeight(), gene.getValue());
+            geneCopy.setIncluded(rng.nextBoolean()); // Get random INCLUDED state
+            add(geneCopy); // Add gene copy to CHROMOSOME
         }
     }
 
@@ -61,10 +60,10 @@ public class Chromosome extends ArrayList<Item> implements Comparable<Chromosome
      * Give this CHROMOSOME random inverses of traits (INCLUDED value) at a rare chance.
      */
     public void mutate() {
-        for (Item item : this) {
+        for (Item gene : this) {
             int mutation = new Random().nextInt(9) + 1; // Pick a random Int 1-10
             if (mutation == 1) {
-                item.setIncluded(!item.isIncluded()); // Mutate if 1 was picked.
+                gene.setIncluded(!gene.isIncluded()); // Mutate if 1 was picked.
             }
         }
     }
@@ -79,10 +78,10 @@ public class Chromosome extends ArrayList<Item> implements Comparable<Chromosome
         double totalWeight = 0;
         int totalValue = 0;
 
-        for (Item item : this) {
-            if (item.isIncluded()) {
-                totalWeight += item.getWeight(); // If INCLUDED, add on its WEIGHT to total.
-                totalValue += item.getValue(); // If INCLUDED, add on its VALUE to total.
+        for (Item gene : this) {
+            if (gene.isIncluded()) {
+                totalWeight += gene.getWeight(); // If INCLUDED, add on its WEIGHT to total.
+                totalValue += gene.getValue(); // If INCLUDED, add on its VALUE to total.
             }
         }
 
@@ -115,9 +114,9 @@ public class Chromosome extends ArrayList<Item> implements Comparable<Chromosome
      */
     public String toString() {
         String output = ""; // Empty String init
-        for (Item item : this) {
-            if (item.isIncluded()) {
-                output += item + "\n"; // Add the toString of every ITEM that is INCLUDED.
+        for (Item gene : this) {
+            if (gene.isIncluded()) {
+                output += gene + "\n"; // Add the toString of every ITEM that is INCLUDED.
             }
         }
         output += "Fitness: " + this.getFitness() + "\n"; // Add the fitness to the end of the String
