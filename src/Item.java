@@ -5,6 +5,8 @@ public class Item {
     private boolean included;
 
 
+
+
     public Item(String name, double weight, int value) {
         this.name = name;
         this.weight = weight;
@@ -22,6 +24,10 @@ public class Item {
         this.included = included;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public double getWeight() {
         return this.weight;
     }
@@ -34,8 +40,10 @@ public class Item {
         return this.included;
     }
 
+
     public String toString() {
-        return this.name + " (" + this.weight + "lbs, $" + this.value + ")";
+        String out = this.name + " (" + this.weight + " lbs, $" + this.value + ")";
+        return out;
     }
 
 }

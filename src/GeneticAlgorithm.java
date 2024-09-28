@@ -43,62 +43,97 @@ public class GeneticAlgorithm {
         return population;
     }
 
+    /**
+     * Driver for the algorith that creates a population, randomly pairs them off for crossover, implements a
+     * 10% chance for the child chromosome to be exposed to mutation (along with the 10% chance a given gene will
+     * mutate), and finally filters by the top 10 fittest Chromosomes of the generation, and clears the rest,
+     * repeating for 19 more generations.
+     * @param args
+     * @throws FileNotFoundException
+     */
     public static void main(String[] args) throws FileNotFoundException {
         Random rng = new Random();
         Chromosome initialChromosome = new Chromosome(readData("test.csv"));
 
-        // Generation 1 (Original gen)
-        ArrayList<Chromosome> Generation_1 = initializePopulation(initialChromosome, 10);
+        ArrayList<Chromosome> currentGeneration = initializePopulation(initialChromosome, 10);
+        ArrayList<Chromosome> nextGeneration = new ArrayList<>();
 
-        // Crossover
-        ArrayList<Chromosome> pairOff = new ArrayList<>(Generation_1);
-        ArrayList<Chromosome> Generation_2 = new ArrayList<>();
-        while (!pairOff.isEmpty()) {
-            int parent1_idx;
-            int parent2_idx;
+        for (int j = 0; j < 20; j++) {
+            for (Chromosome chromosome : currentGeneration) {
+                Chromosome tempChromosome = new Chromosome();
+                for (Item item : chromosome) {
+                    Item itemCopy = new Item(item.getName(), item.getWeight(), item.getValue());
+                    itemCopy.setIncluded(item.isIncluded());
+                    tempChromosome.add(itemCopy);
+                }
+                nextGeneration.add(tempChromosome);
+            }
 
-            parent1_idx = rng.nextInt(pairOff.size());
+            // Crossover
+            int pairOffSize = nextGeneration.size();
+            ArrayList<Integer> pairOff_LAST = new ArrayList<>();
+            for (int i = 0; i < pairOffSize / 2; i++) {
+                int parent1_idx;
+                int parent2_idx;
 
-            do {
-                parent2_idx = rng.nextInt(pairOff.size());
-            } while (parent1_idx == parent2_idx);
+                do {
+                    parent1_idx = rng.nextInt(pairOffSize);
+                } while (pairOff_LAST.contains(parent1_idx));
 
-            // Labeling parents
-            Chromosome parent1 = pairOff.get(parent1_idx);
-            Chromosome parent2 = pairOff.get(parent2_idx);
+                do {
+                    parent2_idx = rng.nextInt(pairOffSize);
+                } while (parent1_idx == parent2_idx && pairOff_LAST.contains(parent2_idx));
 
-            Chromosome child = parent1.crossover(parent2); // Crossover
-            Generation_2.add(child); // Add child to generation 2 (Crossover gen)
+                // Labeling parents
+                Chromosome parent1 = nextGeneration.get(parent1_idx);
+                Chromosome parent2 = nextGeneration.get(parent2_idx);
 
-            // Remove from pairing array
-            pairOff.remove(parent1_idx);
-            pairOff.remove(parent2_idx);
+                Chromosome child = parent1.crossover(parent2); // Crossover
+                nextGeneration.add(child); // Add child to nextGeneration
+
+                pairOff_LAST.add(parent1_idx);
+                pairOff_LAST.add(parent2_idx);
+            }
+
+            // Mutation of 10% population
+            int mutationAmount = nextGeneration.size() / 10; // Dividing by 10 and flooring it.
+
+            int targetChromosome_idx; // Init for active target
+            ArrayList<Integer> targetChromosome_idx_LAST = new ArrayList<>(); // Init for list of previous targets
+
+            // Do n number of times. (N = number of chromosomes to expose)
+            for (int i = 0; i < mutationAmount; i++) {
+                // Randomly pick a target index that has NOT been previously chosen.
+                do {
+                    targetChromosome_idx = rng.nextInt(nextGeneration.size());
+                } while (targetChromosome_idx_LAST.contains(targetChromosome_idx));
+
+                Chromosome targetChromosome = nextGeneration.get(targetChromosome_idx); // Get chromosome at target index
+                targetChromosome.mutate(); // Mutate
+                targetChromosome_idx_LAST.add(targetChromosome_idx); // Remember this index as already mutated.
+            }
+
+            nextGeneration.sort(null);
+            currentGeneration.clear();
+            int topContenders;
+            if (nextGeneration.size() < 10) {
+                topContenders = nextGeneration.size();
+            } else {
+                topContenders = 10;
+            }
+
+            for (Chromosome chromosome : nextGeneration.subList(0, topContenders - 1)) {
+                Chromosome tempChromosome = new Chromosome();
+                for (Item item : chromosome) {
+                    Item itemCopy = new Item(item.getName(), item.getWeight(), item.getValue());
+                    itemCopy.setIncluded(item.isIncluded());
+                    tempChromosome.add(itemCopy);
+                }
+                currentGeneration.add(tempChromosome);
+            }
+            nextGeneration.clear();
         }
 
-        // Gen 3 (Mutation gen)
-        ArrayList<Chromosome> Generation_3 = new ArrayList<>();
-        for (Chromosome c : Generation_2) {
-            Generation_3.add(new Chromosome(c));
-        }
-
-        // Mutation of 10% population
-        int mutationAmount = Generation_3.size() / 10; // Dividing by 10 and flooring it.
-        int targetChromosome_idx; // Init for active target
-        ArrayList<Integer> targetChromosome_idx_LAST = new ArrayList<>(); // Init for list of previous targets
-
-        // Do n number of times. (N = number of chromosomes to expose)
-        for (int i = 0; i < mutationAmount; i++) {
-            // Randomly pick a target index that has NOT been previously chosen.
-            do {
-                targetChromosome_idx = rng.nextInt(Generation_3.size());
-            } while (targetChromosome_idx_LAST.contains(targetChromosome_idx));
-
-            Chromosome targetChromosome = Generation_3.get(targetChromosome_idx); // Get chromosome at target index
-            targetChromosome.mutate(); // Mutate
-            targetChromosome_idx_LAST.add(targetChromosome_idx); // Remember this index as already mutated.
-        }
-
-        Generation_3.sort(Chromosome::compareTo);
-        System.out.println(Generation_3);
+        System.out.printf("\n ------ Fittest individual ------\n%s", currentGeneration.get(0).toString());
     }
 }

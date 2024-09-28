@@ -7,7 +7,6 @@ import java.util.Random;
  */
 public class Chromosome extends ArrayList<Item> implements Comparable<Chromosome> {
     private static Random rng = new Random();
-
     /**
      * Construct an empty chromosome.
      */
@@ -20,11 +19,10 @@ public class Chromosome extends ArrayList<Item> implements Comparable<Chromosome
      */
     public Chromosome(ArrayList<Item> items) {
         for (Item item : items) {
-            Item itemCopy = new Item(item.toString(), item.getWeight(), item.getValue());
+            Item itemCopy = new Item(item.getName(), item.getWeight(), item.getValue());
             itemCopy.setIncluded(rng.nextBoolean());
             add(itemCopy);
         }
-
     }
 
     /**
@@ -42,14 +40,15 @@ public class Chromosome extends ArrayList<Item> implements Comparable<Chromosome
           boolean traitParent = rng.nextBoolean();
           Item trait;
           if (traitParent) {
-              trait = new Item(this.get(i).toString(), this.get(i).getWeight(), this.get(i).getValue());
+              trait = new Item(this.get(i).getName(), this.get(i).getWeight(), this.get(i).getValue());
+              trait.setIncluded(this.get(i).isIncluded());
           }
           else {
-              trait = new Item(other.get(i).toString(), other.get(i).getWeight(), other.get(i).getValue());
+              trait = new Item(other.get(i).getName(), other.get(i).getWeight(), other.get(i).getValue());
+              trait.setIncluded(other.get(i).isIncluded());
           }
           child.add(trait);
         }
-
         return child;
     }
 
@@ -74,8 +73,10 @@ public class Chromosome extends ArrayList<Item> implements Comparable<Chromosome
         double totalWeight = 0;
         int totalValue = 0;
         for (Item item : this) {
-            totalWeight += item.getWeight();
-            totalValue += item.getValue();
+            if (item.isIncluded()) {
+                totalWeight += item.getWeight();
+                totalValue += item.getValue();
+            }
         }
         if (totalWeight > 10) {
             return 0;
@@ -92,9 +93,9 @@ public class Chromosome extends ArrayList<Item> implements Comparable<Chromosome
     @Override
     public int compareTo(Chromosome other) {
         if (this.getFitness() < other.getFitness()) {
-            return -1;
-        } else if (this.getFitness() > other.getFitness()) {
             return 1;
+        } else if (this.getFitness() > other.getFitness()) {
+            return -1;
         } else {
             return 0;
         }
